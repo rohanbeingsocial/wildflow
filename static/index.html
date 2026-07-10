@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wildflow · Study AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script crossorigin src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.7/babel.min.js"></script>
+<style>
+:root{
+  --bg:#07090f; --glass:rgba(255,255,255,.045); --glass-2:rgba(255,255,255,.07);
+  --border:rgba(255,255,255,.09); --border-hi:rgba(255,255,255,.16);
+  --text:#eceff7; --muted:#8b93a9; --dim:#5b6377;
+  --v:#8b5cf6; --c:#22d3ee; --m:#e879f9; --g:#34d399; --amber:#fbbf24; --red:#f87171;
+  --grad:linear-gradient(120deg,#8b5cf6,#e879f9 50%,#22d3ee);
+  --r:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body,#root{height:100%}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:8px}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.22)}
+::selection{background:rgba(139,92,246,.4)}
+button{font-family:inherit}
+
+/* ======================= AURORA BACKGROUND ======================= */
+.aurora{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none}
+.aurora .blob{position:absolute;border-radius:50%;filter:blur(110px);opacity:.5;will-change:transform}
+.b1{width:55vw;height:55vw;background:radial-gradient(circle,#4c1d95,transparent 65%);top:-20%;left:-12%;animation:drift1 26s ease-in-out infinite alternate}
+.b2{width:45vw;height:45vw;background:radial-gradient(circle,#0e7490,transparent 65%);bottom:-18%;right:-10%;animation:drift2 32s ease-in-out infinite alternate}
+.b3{width:34vw;height:34vw;background:radial-gradient(circle,#a21caf,transparent 65%);top:30%;left:55%;animation:drift3 38s ease-in-out infinite alternate;opacity:.35}
+@keyframes drift1{to{transform:translate(9vw,7vh) scale(1.15) rotate(20deg)}}
+@keyframes drift2{to{transform:translate(-8vw,-9vh) scale(1.2)}}
+@keyframes drift3{to{transform:translate(-12vw,10vh) scale(.85)}}
+.grid-overlay{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1px);
+  background-size:34px 34px;
+  mask-image:radial-gradient(ellipse 90% 70% at 50% 40%,black 30%,transparent 75%)}
+
+/* ======================= LAYOUT ======================= */
+.shell{position:relative;z-index:1;display:flex;height:100%}
+.side{width:288px;min-width:288px;height:100%;display:flex;flex-direction:column;gap:12px;
+  padding:18px 14px;background:rgba(10,12,20,.55);backdrop-filter:blur(22px);
+  border-right:1px solid var(--border);transition:margin .3s cubic-bezier(.4,0,.2,1)}
+.side.closed{margin-left:-288px}
+.brand{display:flex;align-items:center;gap:11px;padding:2px 6px 10px}
+.logo{width:38px;height:38px;border-radius:12px;background:var(--grad);display:flex;align-items:center;
+  justify-content:center;font-size:19px;box-shadow:0 0 24px rgba(139,92,246,.55);animation:logopulse 4s ease-in-out infinite}
+@keyframes logopulse{50%{box-shadow:0 0 38px rgba(232,121,249,.6)}}
+.brand h1{font-family:'Space Grotesk';font-size:21px;font-weight:700;letter-spacing:.3px;
+  background:var(--grad);background-size:200%;-webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:gradshift 6s linear infinite}
+@keyframes gradshift{to{background-position:200% 0}}
+.brand span{display:block;font-size:10.5px;color:var(--muted);font-weight:400;font-family:'Inter';-webkit-text-fill-color:var(--muted)}
+.newchat{position:relative;overflow:hidden;background:var(--grad);background-size:200%;color:#fff;border:none;
+  border-radius:12px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;
+  box-shadow:0 4px 20px rgba(139,92,246,.35);transition:transform .15s,box-shadow .15s}
+.newchat:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(139,92,246,.55)}
+.newchat::after{content:'';position:absolute;top:0;left:-80%;width:50%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-20deg);animation:shine 3.2s ease-in-out infinite}
+@keyframes shine{0%,60%{left:-80%}100%{left:130%}}
+.side-label{font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--dim);padding:4px 6px 0}
+.histlist{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:5px;padding-right:2px}
+.hist{display:flex;align-items:center;gap:9px;padding:10px 11px;border-radius:11px;cursor:pointer;
+  border:1px solid transparent;color:var(--muted);font-size:13px;transition:all .18s;position:relative}
+.hist:hover{background:var(--glass);color:var(--text);transform:translateX(3px)}
+.hist.active{background:var(--glass-2);border-color:var(--border-hi);color:var(--text)}
+.hist .t{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist .del{opacity:0;border:none;background:none;color:var(--dim);cursor:pointer;font-size:14px;padding:2px;transition:all .15s}
+.hist:hover .del{opacity:1}
+.hist .del:hover{color:var(--red);transform:scale(1.2)}
+.prefs{display:flex;flex-direction:column;gap:8px;padding-top:10px;border-top:1px solid var(--border)}
+.prefrow{display:flex;align-items:center;gap:8px}
+.prefrow .ico{font-size:14px;width:20px;text-align:center}
+select{flex:1;background:var(--glass);color:var(--text);border:1px solid var(--border);border-radius:10px;
+  padding:8px 10px;font-size:12.5px;outline:none;cursor:pointer;font-family:inherit;transition:border-color .15s}
+select:hover,select:focus{border-color:var(--v)}
+select option{background:#12141f}
+.stat{font-size:10.5px;color:var(--dim);text-align:center;padding-top:2px}
+
+.main{flex:1;display:flex;flex-direction:column;min-width:0;height:100%}
+.topbar{display:flex;align-items:center;gap:12px;padding:13px 20px;border-bottom:1px solid var(--border);
+  background:rgba(10,12,20,.35);backdrop-filter:blur(14px)}
+.iconbtn{background:var(--glass);border:1px solid var(--border);color:var(--text);border-radius:10px;
+  width:34px;height:34px;cursor:pointer;font-size:14px;transition:all .15s}
+.iconbtn:hover{border-color:var(--v);transform:translateY(-1px)}
+.crumb{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crumb small{display:block;font-weight:400;font-size:11px;color:var(--muted)}
+.live{margin-left:auto;display:flex;align-items:center;gap:7px;font-size:11px;color:var(--g)}
+.live .dot{width:7px;height:7px;border-radius:50%;background:var(--g);box-shadow:0 0 10px var(--g);animation:blink 2.2s infinite}
+@keyframes blink{50%{opacity:.35}}
+
+.scroll{flex:1;overflow-y:auto;scroll-behavior:smooth}
+.chatcol{max-width:840px;margin:0 auto;padding:28px 22px 12px;display:flex;flex-direction:column;gap:20px}
+
+/* ---------- welcome ---------- */
+.welcome{max-width:680px;margin:8vh auto 0;text-align:center;padding:0 22px;animation:rise .6s cubic-bezier(.2,.8,.2,1)}
+@keyframes rise{from{opacity:0;transform:translateY(24px)}}
+.hero{font-family:'Space Grotesk';font-size:clamp(30px,4.6vw,46px);font-weight:700;line-height:1.15;
+  background:var(--grad);background-size:220%;-webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:gradshift 7s linear infinite}
+.welcome p{color:var(--muted);margin:16px auto 30px;font-size:14.5px;line-height:1.7;max-width:520px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.card{background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:15px 16px;text-align:left;
+  cursor:pointer;color:var(--text);font-size:13px;line-height:1.5;transition:all .22s cubic-bezier(.2,.8,.2,1);
+  animation:rise .6s cubic-bezier(.2,.8,.2,1) backwards}
+.card:nth-child(1){animation-delay:.08s}.card:nth-child(2){animation-delay:.16s}
+.card:nth-child(3){animation-delay:.24s}.card:nth-child(4){animation-delay:.32s}
+.card:hover{transform:translateY(-4px) scale(1.015);border-color:var(--border-hi);background:var(--glass-2);
+  box-shadow:0 12px 34px rgba(0,0,0,.45),0 0 0 1px rgba(139,92,246,.25)}
+.card .ic{font-size:19px;display:block;margin-bottom:8px}
+.card b{display:block;margin-bottom:3px;font-size:13.5px}
+.card span{color:var(--muted);font-size:12px}
+
+/* ---------- messages ---------- */
+.msg{display:flex;gap:13px;animation:msgIn .38s cubic-bezier(.2,.8,.2,1)}
+@keyframes msgIn{from{opacity:0;transform:translateY(14px) scale(.985)}}
+.avatar{width:34px;height:34px;border-radius:11px;flex:none;display:flex;align-items:center;justify-content:center;font-size:16px;margin-top:2px}
+.msg.user{flex-direction:row-reverse}
+.msg.user .avatar{background:var(--glass-2);border:1px solid var(--border)}
+.msg.bot .avatar{background:var(--grad);box-shadow:0 0 16px rgba(139,92,246,.4)}
+.bubble{min-width:0;line-height:1.68;font-size:14.5px}
+.msg.user .bubble{max-width:74%;padding:12px 17px;border-radius:18px 5px 18px 18px;
+  background:linear-gradient(135deg,rgba(139,92,246,.32),rgba(34,211,238,.18));
+  border:1px solid rgba(139,92,246,.35);box-shadow:0 4px 22px rgba(139,92,246,.16)}
+.msg.bot .bubble{flex:1;padding:17px 21px;border-radius:5px 18px 18px 18px;
+  background:var(--glass);border:1px solid var(--border);backdrop-filter:blur(10px)}
+.bubble h1,.bubble h2,.bubble h3,.bubble h4{margin:15px 0 8px;font-size:15.5px;font-family:'Space Grotesk'}
+.bubble h1{font-size:17.5px}.bubble h2{font-size:16.5px}
+.bubble p{margin:8px 0}
+.bubble ul,.bubble ol{margin:8px 0 8px 22px}
+.bubble li{margin:4px 0}
+.bubble strong{color:#fff}
+.bubble code{background:rgba(0,0,0,.35);border:1px solid var(--border);border-radius:5px;padding:1px 6px;font-size:13px}
+.bubble pre{background:rgba(0,0,0,.35);border:1px solid var(--border);border-radius:11px;padding:13px;overflow-x:auto;margin:10px 0}
+.bubble pre code{border:none;padding:0;background:none}
+.bubble table{border-collapse:collapse;margin:10px 0;font-size:13.5px;display:block;overflow-x:auto;max-width:100%}
+.bubble th,.bubble td{border:1px solid var(--border);padding:7px 11px;text-align:left}
+.bubble th{background:var(--glass-2)}
+.bubble img{max-width:min(440px,100%);border-radius:12px;background:#fff;padding:7px;margin:11px 0;display:block;
+  transition:transform .25s;cursor:zoom-in;box-shadow:0 8px 28px rgba(0,0,0,.4)}
+.bubble img:hover{transform:scale(1.025)}
+.bubble .katex-display{overflow-x:auto;overflow-y:hidden;padding:8px 2px;margin:10px 0;
+  background:rgba(0,0,0,.22);border-radius:10px;border:1px solid rgba(255,255,255,.06)}
+.bubble hr{border:none;border-top:1px solid var(--border);margin:14px 0}
+.errbubble{color:#fca5a5}
+
+/* meta chips + tools under an answer */
+.meta{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;align-items:center}
+.chip{font-size:11px;border-radius:20px;padding:3.5px 11px;border:1px solid;animation:chipIn .3s ease backwards}
+@keyframes chipIn{from{opacity:0;transform:scale(.8)}}
+.chip.route{color:#c4b5fd;background:rgba(139,92,246,.13);border-color:rgba(139,92,246,.35)}
+.chip.src{color:var(--g);background:rgba(52,211,153,.09);border-color:rgba(52,211,153,.3)}
+.chip.kind{color:var(--c);background:rgba(34,211,238,.09);border-color:rgba(34,211,238,.3)}
+.chip.cache{color:var(--amber);background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.3)}
+.chip.ok{color:var(--g);background:rgba(52,211,153,.09);border-color:rgba(52,211,153,.35)}
+.chip.warn{color:var(--amber);background:rgba(251,191,36,.09);border-color:rgba(251,191,36,.35)}
+.tools{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;align-items:center}
+.toolbtn{font-size:11.5px;color:var(--muted);background:none;border:1px solid var(--border);
+  border-radius:8px;padding:4px 11px;cursor:pointer;transition:all .15s}
+.toolbtn:hover{color:var(--text);border-color:var(--v);transform:translateY(-1px)}
+.toolbtn.on{color:#c4b5fd;border-color:rgba(139,92,246,.5);background:rgba(139,92,246,.1)}
+.fb{font-size:13px;background:none;border:1px solid var(--border);border-radius:8px;width:30px;height:26px;
+  cursor:pointer;transition:all .15s;filter:grayscale(1);opacity:.7}
+.fb:hover{filter:none;opacity:1;transform:scale(1.12)}
+.fb.picked{filter:none;opacity:1;border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.1)}
+.fb.picked.down{border-color:rgba(248,113,113,.5);background:rgba(248,113,113,.1)}
+
+/* sources expander */
+.srcbox{margin-top:12px;border:1px solid var(--border);border-radius:12px;overflow:hidden;animation:msgIn .3s ease}
+.srcitem{padding:12px 15px;border-bottom:1px solid var(--border);background:rgba(0,0,0,.18)}
+.srcitem:last-child{border-bottom:none}
+.srcitem .srchead{font-size:11.5px;color:var(--g);margin-bottom:6px;font-weight:600}
+.srcitem .srcbody{font-size:13px;color:var(--muted);max-height:260px;overflow-y:auto;line-height:1.6}
+.srcitem .srcbody img{max-width:200px}
+
+/* gallery */
+.gallery{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}
+.gallery a{display:block}
+.gallery img{width:116px;height:88px;object-fit:contain;border-radius:10px;background:#fff;padding:4px;
+  margin:0;cursor:pointer;transition:transform .2s;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.gallery img:hover{transform:scale(1.06)}
+.gallabel{font-size:10.5px;color:var(--dim);width:100%;margin-bottom:-3px}
+
+/* quiz card */
+.quiz{display:flex;flex-direction:column;gap:12px}
+.quizhead{font-family:'Space Grotesk';font-size:15px;font-weight:600;
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.qitem{border:1px solid var(--border);border-radius:12px;padding:13px 15px;background:rgba(0,0,0,.15);
+  animation:msgIn .35s ease backwards}
+.qitem:nth-child(2){animation-delay:.06s}.qitem:nth-child(3){animation-delay:.12s}
+.qitem:nth-child(4){animation-delay:.18s}.qitem:nth-child(5){animation-delay:.24s}.qitem:nth-child(6){animation-delay:.3s}
+.qq{font-size:13.5px;margin-bottom:9px}
+.qq b{color:var(--c);margin-right:7px}
+.reveal{font-size:11.5px;color:#c4b5fd;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.4);
+  border-radius:8px;padding:4px 12px;cursor:pointer;transition:all .15s}
+.reveal:hover{background:rgba(139,92,246,.22)}
+.qa{margin-top:9px;padding:10px 12px;border-left:2px solid var(--g);background:rgba(52,211,153,.06);
+  border-radius:0 9px 9px 0;font-size:13px;color:#d5f5e8;animation:msgIn .3s ease}
+
+/* pipeline */
+.pipe{display:flex;flex-direction:column;gap:11px}
+.step{display:flex;align-items:center;gap:11px;font-size:13px;color:var(--muted);animation:msgIn .3s ease backwards}
+.step .sic{width:26px;height:26px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  font-size:13px;background:var(--glass-2);border:1px solid var(--border);flex:none}
+.step.doing{color:var(--text)}
+.step.doing .sic{border-color:var(--v);box-shadow:0 0 14px rgba(139,92,246,.4);animation:spinPulse 1.5s ease-in-out infinite}
+@keyframes spinPulse{50%{transform:rotate(180deg) scale(1.08)}}
+.step.done{color:var(--text)}
+.step.done .sic{background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.4);animation:pop .35s cubic-bezier(.2,2,.4,1)}
+@keyframes pop{from{transform:scale(.4)}}
+.step .result{color:var(--g);font-weight:600}
+.shimmerbar{height:3px;border-radius:3px;margin-top:4px;background:linear-gradient(90deg,transparent,rgba(139,92,246,.8),rgba(34,211,238,.8),transparent);
+  background-size:200%;animation:shimmer 1.6s linear infinite}
+@keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+.slowhint{font-size:11.5px;color:var(--dim);font-style:italic;margin-top:2px;animation:msgIn .4s ease}
+
+/* composer */
+.composerwrap{padding:14px 20px 22px;background:linear-gradient(transparent,rgba(7,9,15,.9) 45%)}
+.composer{max-width:840px;margin:0 auto;position:relative;display:flex;gap:10px;align-items:flex-end;
+  background:rgba(18,21,32,.8);backdrop-filter:blur(18px);border:1px solid var(--border);
+  border-radius:18px;padding:12px 13px;transition:all .2s}
+.composer.glow{border-color:transparent;box-shadow:0 0 0 1.5px rgba(139,92,246,.7),0 0 32px rgba(139,92,246,.25)}
+textarea{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:14.5px;
+  font-family:inherit;resize:none;max-height:160px;line-height:1.55}
+textarea::placeholder{color:var(--dim)}
+.send{width:40px;height:40px;border:none;border-radius:12px;cursor:pointer;flex:none;font-size:16px;color:#fff;
+  background:var(--grad);background-size:200%;transition:all .2s;box-shadow:0 3px 16px rgba(139,92,246,.4)}
+.send:hover:not(:disabled){transform:translateY(-2px) scale(1.05);box-shadow:0 6px 24px rgba(139,92,246,.6)}
+.send:disabled{opacity:.3;cursor:default;box-shadow:none}
+.quizbtn{width:40px;height:40px;border:1px solid var(--border);border-radius:12px;cursor:pointer;flex:none;
+  font-size:16px;background:var(--glass);transition:all .2s}
+.quizbtn:hover:not(:disabled){border-color:var(--c);transform:translateY(-2px);box-shadow:0 4px 18px rgba(34,211,238,.3)}
+.quizbtn:disabled{opacity:.3;cursor:default}
+.hintline{max-width:840px;margin:9px auto 0;font-size:11px;color:var(--dim);text-align:center}
+.hintline b{color:var(--muted);font-weight:500}
+
+/* modal */
+.overlay{position:fixed;inset:0;z-index:50;background:rgba(4,6,10,.7);backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;animation:fade .2s ease}
+@keyframes fade{from{opacity:0}}
+.modal{width:min(720px,92vw);max-height:84vh;display:flex;flex-direction:column;border-radius:18px;
+  background:#10131d;border:1px solid var(--border-hi);box-shadow:0 30px 80px rgba(0,0,0,.6);
+  animation:modalIn .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes modalIn{from{opacity:0;transform:translateY(26px) scale(.97)}}
+.modalhead{display:flex;align-items:center;gap:10px;padding:17px 21px;border-bottom:1px solid var(--border)}
+.modalhead h2{font-family:'Space Grotesk';font-size:17px;flex:1;
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.modalhead small{display:block;font-size:11px;color:var(--muted);-webkit-text-fill-color:var(--muted)}
+.close{background:var(--glass);border:1px solid var(--border);color:var(--text);border-radius:9px;
+  width:30px;height:30px;cursor:pointer;font-size:13px;transition:all .15s}
+.close:hover{border-color:var(--red);color:var(--red)}
+.modalbody{overflow-y:auto;padding:18px 21px;display:flex;flex-direction:column;gap:14px}
+.fgroup{border:1px solid var(--border);border-radius:12px;padding:13px 16px;background:rgba(0,0,0,.15)}
+.fgroup .ft{font-size:12px;color:var(--g);font-weight:600;margin-bottom:6px}
+.fgroup .katex-display{overflow-x:auto;padding:6px 0;margin:8px 0}
+.fempty{color:var(--muted);font-size:13px;text-align:center;padding:20px}
+
+@media (max-width:900px){
+  .side{position:fixed;z-index:30;height:100%;box-shadow:10px 0 40px rgba(0,0,0,.6)}
+  .side.closed{box-shadow:none}
+}
+</style>
+</head>
+<body>
+<div class="aurora"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+<div class="grid-overlay"></div>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const {useState, useEffect, useRef, useCallback} = React;
+
+/* ---------------- storage helpers ---------------- */
+const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
+const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const uid = () => Math.random().toString(36).slice(2, 10);
+
+/* ---------------- markdown + math ---------------- */
+function richHTML(text){
+  const math = [];
+  let t = String(text || '')
+    .replace(/\$\$[\s\S]+?\$\$/g, m => { math.push(m); return `@@M${math.length-1}@@`; })
+    .replace(/\$[^$\n]+?\$/g,     m => { math.push(m); return `@@M${math.length-1}@@`; });
+  let html = marked.parse(t, {breaks:true});
+  return html.replace(/@@M(\d+)@@/g, (_, i) => math[+i]);
+}
+function katexify(el){
+  renderMathInElement(el, {
+    delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],
+    throwOnError:false});
+}
+function Rich({text}){
+  const ref = useRef(null);
+  useEffect(() => {
+    if(!ref.current) return;
+    ref.current.innerHTML = richHTML(text);
+    katexify(ref.current);
+  }, [text]);
+  return <div ref={ref}/>;
+}
+
+/* ---------------- pipeline ---------------- */
+const STEPS = [
+  {icon:'🔍', label:'Detecting subject'},
+  {icon:'🎯', label:'Locating unit'},
+  {icon:'📚', label:'Reading your notes'},
+  {icon:'✨', label:'Writing answer'},
+];
+function Pipeline({stage, route, slow, label}){
+  if(label) return (
+    <div className="pipe">
+      <div className="step doing"><div className="sic">🎯</div><div>{label}</div></div>
+      <div className="shimmerbar"/>
+    </div>
+  );
+  return (
+    <div className="pipe">
+      {STEPS.map((s, i) => {
+        const state = i < stage ? 'done' : i === stage ? 'doing' : '';
+        if(i > stage) return null;
+        return (
+          <div key={i} className={`step ${state}`} style={{animationDelay:`${i*0.05}s`}}>
+            <div className="sic">{state === 'done' ? '✓' : s.icon}</div>
+            <div>
+              {s.label}
+              {i === 0 && state === 'done' && route && <span className="result"> — {route.subject}</span>}
+              {i === 1 && state === 'done' && route && <span className="result"> — {route.unit_name}</span>}
+            </div>
+          </div>
+        );
+      })}
+      <div className="shimmerbar"/>
+      {slow && <div className="slowhint">First question after startup loads the AI models — this can take a minute…</div>}
+    </div>
+  );
+}
+
+/* ---------------- quiz card ---------------- */
+function QuizCard({quiz}){
+  const [open, setOpen] = useState({});
+  return (
+    <div className="quiz">
+      <div className="quizhead">🎯 Practice quiz · {quiz.unit_name} ({quiz.subject})</div>
+      {quiz.questions.map((q, i) =>
+        <div key={i} className="qitem">
+          <div className="qq"><b>Q{i+1}.</b><Rich text={q.q}/></div>
+          {open[i]
+            ? <div className="qa"><Rich text={q.a}/></div>
+            : <button className="reveal" onClick={() => setOpen(o => ({...o, [i]:true}))}>Reveal answer</button>}
+        </div>)}
+    </div>
+  );
+}
+
+/* ---------------- one message ---------------- */
+function Message({m, onCopy, onFeedback, onFormulas}){
+  const [showSrc, setShowSrc] = useState(false);
+  if(m.role === 'user') return (
+    <div className="msg user"><div className="avatar">🧑‍🎓</div><div className="bubble">{m.text}</div></div>
+  );
+  return (
+    <div className="msg bot">
+      <div className="avatar">🌿</div>
+      <div className="bubble">
+        {m.pending ? <Pipeline stage={m.stage} route={m.route} slow={m.slow} label={m.pendLabel}/> :
+         m.error ? <div className="errbubble">⚠️ {m.error}</div> :
+         m.kind === 'quiz' ? <QuizCard quiz={m.quiz}/> :
+         <React.Fragment>
+           <Rich text={m.text}/>
+
+           {m.meta && (m.meta.gallery||[]).length > 0 &&
+             <div className="gallery">
+               <div className="gallabel">📎 Diagrams from this section</div>
+               {m.meta.gallery.map((u,i) =>
+                 <a key={i} href={u} target="_blank" rel="noreferrer"><img src={u} loading="lazy"/></a>)}
+             </div>}
+
+           <div className="meta">
+             {m.meta && <span className="chip route">🧭 {m.meta.subject} · {m.meta.unit_name}</span>}
+             {m.meta && (m.meta.topics||[]).slice(0,2).map((t,i) =>
+               <span key={i} className="chip src">📖 {t.topic.length > 42 ? t.topic.slice(0,42)+'…' : t.topic}</span>)}
+             {m.meta && <span className="chip kind">
+               {m.meta.query_type === 'NUMERICAL' ? '🧮 numerical' :
+                m.meta.query_type === 'GRAPHICAL' ? '📐 graphical' : '💬 theory'}</span>}
+             {m.meta && m.meta.verify && m.meta.verify.status === 'verified' &&
+               <span className="chip ok">✓ arithmetic verified</span>}
+             {m.meta && m.meta.verify && m.meta.verify.status === 'mismatch' &&
+               <span className="chip warn">⚠ check arithmetic ({m.meta.verify.computed})</span>}
+             {m.meta && m.meta.cached && <span className="chip cache">⚡ cached</span>}
+           </div>
+
+           <div className="tools">
+             <button className={`fb ${m.fb === 'up' ? 'picked' : ''}`} title="Good answer"
+               onClick={() => !m.fb && onFeedback(m, 'up')}>👍</button>
+             <button className={`fb ${m.fb === 'down' ? 'picked down' : ''}`} title="Bad answer"
+               onClick={() => !m.fb && onFeedback(m, 'down')}>👎</button>
+             {m.meta && (m.meta.sources||[]).length > 0 &&
+               <button className={`toolbtn ${showSrc ? 'on' : ''}`} onClick={() => setShowSrc(s => !s)}>
+                 🗒 {showSrc ? 'Hide source notes' : 'View source notes'}</button>}
+             {m.meta && m.meta.unit_id &&
+               <button className="toolbtn" onClick={() => onFormulas(m.meta.unit_id)}>📐 Formula sheet</button>}
+             <button className="toolbtn" style={{marginLeft:'auto'}} onClick={() => onCopy(m.text)}>Copy</button>
+           </div>
+
+           {showSrc && m.meta &&
+             <div className="srcbox">
+               {(m.meta.sources||[]).map((s,i) =>
+                 <div key={i} className="srcitem">
+                   <div className="srchead">📖 {s.topic} — {s.unit} (verbatim from your notes)</div>
+                   <div className="srcbody"><Rich text={s.text}/></div>
+                 </div>)}
+             </div>}
+         </React.Fragment>}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- formula modal ---------------- */
+function FormulaModal({data, onClose}){
+  useEffect(() => {
+    const esc = e => { if(e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', esc);
+    return () => window.removeEventListener('keydown', esc);
+  }, []);
+  return (
+    <div className="overlay" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
+        <div className="modalhead">
+          <h2>📐 Formula sheet<small>{data.unit_name} · {data.subject}</small></h2>
+          <button className="close" onClick={onClose}>✕</button>
+        </div>
+        <div className="modalbody">
+          {data.groups.length === 0 && <div className="fempty">No equations found in this unit.</div>}
+          {data.groups.map((g,i) =>
+            <div key={i} className="fgroup">
+              <div className="ft">{g.topic}</div>
+              {g.equations.map((eq,j) => <Rich key={j} text={eq}/>)}
+            </div>)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- welcome ---------------- */
+const SUGGESTIONS = [
+  {ic:'🧪', b:'Explain a concept',  s:'What is number average molecular mass?', q:'What is number average molecular mass and how is it calculated?'},
+  {ic:'🧮', b:'Solve a numerical',  s:'Forces, moments, molecular weights…',    q:'A polymer sample has 100 molecules of mass 1000 and 300 molecules of mass 10000. Calculate the number average molecular weight.'},
+  {ic:'⚡', b:'Quick revision',     s:'Summaries before the exam',              q:'Summarize the key points about conducting polymers'},
+  {ic:'🎯', b:'Practice quiz',      s:'Type a topic, press the 🎯 button',      q:null},
+];
+function Welcome({onAsk}){
+  return (
+    <div className="welcome">
+      <div className="hero">Ask your syllabus<br/>anything.</div>
+      <p>No menus, no searching through PDFs. Type a question — Wildflow detects the subject,
+      finds the exact unit in your official notes, and answers with the real formulas and diagrams.</p>
+      <div className="cards">
+        {SUGGESTIONS.map((c,i) =>
+          <button key={i} className="card" onClick={() => c.q && onAsk(c.q)}>
+            <span className="ic">{c.ic}</span><b>{c.b}</b><span>{c.s}</span>
+          </button>)}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- main app ---------------- */
+function App(){
+  const [meta, setMeta] = useState(null);
+  const [prefs, setPrefs] = useState(load('wf_prefs', {college:'', year:''}));
+  const [chats, setChats] = useState(load('wf_chats', []));
+  const [activeId, setActiveId] = useState(load('wf_active', null));
+  const [sideOpen, setSideOpen] = useState(window.innerWidth > 900);
+  const [input, setInput] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [focus, setFocus] = useState(false);
+  const [modal, setModal] = useState(null);
+  const scrollRef = useRef(null);
+  const taRef = useRef(null);
+
+  const active = chats.find(c => c.id === activeId) || null;
+
+  useEffect(() => { save('wf_chats', chats.slice(0,40)); }, [chats]);
+  useEffect(() => { save('wf_active', activeId); }, [activeId]);
+  useEffect(() => { save('wf_prefs', prefs); }, [prefs]);
+
+  useEffect(() => {
+    fetch('/api/meta').then(r => r.json()).then(m => {
+      setMeta(m);
+      const col = m.colleges.find(c => c.name === prefs.college) || m.colleges[0];
+      if(col) setPrefs(p => ({
+        college: col.name,
+        year: col.years.includes(p.year) ? p.year : (col.years[0] || '')
+      }));
+    }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if(scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [chats, activeId]);
+
+  const patchMsg = useCallback((chatId, msgId, patch) => {
+    setChats(cs => cs.map(c => c.id !== chatId ? c :
+      {...c, messages: c.messages.map(m => m.id === msgId ? {...m, ...patch} : m)}));
+  }, []);
+
+  function ensureChat(title){
+    let chat = active;
+    if(!chat){
+      chat = {id: uid(), title: title.slice(0,42), ts: Date.now(), lastUnit:'', messages:[]};
+      setChats(cs => [chat, ...cs]);
+      setActiveId(chat.id);
+    }
+    return chat;
+  }
+
+  async function send(text){
+    const q = (text ?? input).trim();
+    if(!q || busy) return;
+    setInput(''); if(taRef.current) taRef.current.style.height = 'auto';
+    setBusy(true);
+
+    const chat = ensureChat(q);
+    const chatId = chat.id;
+    const userMsg = {id: uid(), role:'user', text:q};
+    const botMsg  = {id: uid(), role:'bot', pending:true, stage:0, route:null, slow:false};
+    setChats(cs => cs.map(c => c.id !== chatId ? c :
+      {...c, title: c.messages.length ? c.title : q.slice(0,42), messages:[...c.messages, userMsg, botMsg]}));
+
+    const slowTimer = setTimeout(() => patchMsg(chatId, botMsg.id, {slow:true}), 12000);
+    const history = chat.messages.filter(m => !m.pending && !m.error && m.kind !== 'quiz').slice(-6)
+      .map(m => ({role: m.role === 'user' ? 'user' : 'model', text: m.text}));
+
+    try {
+      const r1 = await fetch('/api/route', {method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({message:q, college:prefs.college, year:prefs.year, last_unit_id: chat.lastUnit || ''})});
+      const route = await r1.json();
+      if(route.error) throw new Error(route.error);
+      patchMsg(chatId, botMsg.id, {stage:2, route});
+      await new Promise(res => setTimeout(res, 350));
+      patchMsg(chatId, botMsg.id, {stage:3, route});
+
+      const r2 = await fetch('/api/answer', {method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({message:q, unit_ids: route.unit_ids, query_type: route.query_type, history})});
+      const ans = await r2.json();
+      if(ans.error) throw new Error(ans.error);
+
+      patchMsg(chatId, botMsg.id, {pending:false, text:ans.answer,
+        meta:{q, subject:ans.subject, unit_id:ans.unit_id, unit_name:ans.unit_name,
+              topics:ans.topics, query_type:ans.query_type, cached:ans.cached,
+              gallery:ans.gallery || [], sources:ans.sources || [], verify:ans.verify}});
+      setChats(cs => cs.map(c => c.id !== chatId ? c : {...c, lastUnit: ans.unit_id}));
+    } catch(e){
+      patchMsg(chatId, botMsg.id, {pending:false, error: e.message || 'Something went wrong.'});
+    } finally {
+      clearTimeout(slowTimer);
+      setBusy(false);
+    }
+  }
+
+  async function quiz(){
+    if(busy) return;
+    const topic = input.trim();
+    const unitId = (active && active.lastUnit) || '';
+    if(!topic && !unitId){
+      setInput('Type a topic here, then press 🎯 again');
+      return;
+    }
+    setInput(''); if(taRef.current) taRef.current.style.height = 'auto';
+    setBusy(true);
+
+    const title = topic ? `Quiz: ${topic}` : 'Practice quiz';
+    const chat = ensureChat(title);
+    const chatId = chat.id;
+    const userMsg = {id: uid(), role:'user', text: topic ? `🎯 Quiz me on: ${topic}` : '🎯 Quiz me on this unit'};
+    const botMsg  = {id: uid(), role:'bot', pending:true, pendLabel:'Building your quiz from the unit notes…'};
+    setChats(cs => cs.map(c => c.id !== chatId ? c :
+      {...c, title: c.messages.length ? c.title : title.slice(0,42), messages:[...c.messages, userMsg, botMsg]}));
+
+    try {
+      const r = await fetch('/api/quiz', {method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({unit_id: topic ? '' : unitId, topic, college:prefs.college, year:prefs.year})});
+      const data = await r.json();
+      if(data.error) throw new Error(data.error);
+      patchMsg(chatId, botMsg.id, {pending:false, kind:'quiz', quiz:data});
+      setChats(cs => cs.map(c => c.id !== chatId ? c : {...c, lastUnit: data.unit_id}));
+    } catch(e){
+      patchMsg(chatId, botMsg.id, {pending:false, error: e.message || 'Quiz failed.'});
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function sendFeedback(m, rating){
+    patchMsg(activeId, m.id, {fb: rating});
+    fetch('/api/feedback', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({rating, query: (m.meta && m.meta.q) || '', unit_id: (m.meta && m.meta.unit_id) || '',
+        unit_name: (m.meta && m.meta.unit_name) || '', subject: (m.meta && m.meta.subject) || '',
+        query_type: (m.meta && m.meta.query_type) || '', answer_head: (m.text || '').slice(0,300)})}).catch(() => {});
+  }
+
+  async function openFormulas(unitId){
+    try{
+      const data = await (await fetch('/api/formulas?u=' + unitId)).json();
+      setModal(data);
+    }catch(e){}
+  }
+
+  function newChat(){ setActiveId(null); setInput(''); }
+  function delChat(id, e){
+    e.stopPropagation();
+    setChats(cs => cs.filter(c => c.id !== id));
+    if(activeId === id) setActiveId(null);
+  }
+  function copyText(t){ navigator.clipboard.writeText(t); }
+  function autosize(e){
+    const el = e.target; el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+  }
+
+  const college = meta && meta.colleges.find(c => c.name === prefs.college);
+
+  return (
+    <div className="shell">
+      <aside className={`side ${sideOpen ? '' : 'closed'}`}>
+        <div className="brand">
+          <div className="logo">🌿</div>
+          <h1>Wildflow<span>syllabus-true study AI</span></h1>
+        </div>
+        <button className="newchat" onClick={newChat}>✦ &nbsp;New chat</button>
+        <div className="side-label">History</div>
+        <div className="histlist">
+          {chats.length === 0 && <div style={{fontSize:12, color:'var(--dim)', padding:'6px 8px'}}>Your chats will appear here</div>}
+          {chats.map(c =>
+            <div key={c.id} className={`hist ${c.id === activeId ? 'active' : ''}`} onClick={() => setActiveId(c.id)}>
+              <span>💬</span><span className="t">{c.title}</span>
+              <button className="del" title="Delete" onClick={e => delChat(c.id, e)}>✕</button>
+            </div>)}
+        </div>
+        <div className="prefs">
+          <div className="side-label" style={{padding:'0 0 2px'}}>Your class</div>
+          <div className="prefrow"><span className="ico">🏛️</span>
+            <select value={prefs.college} onChange={e => setPrefs(p => ({...p, college:e.target.value}))}>
+              {(meta ? meta.colleges : []).map(c => <option key={c.name}>{c.name}</option>)}
+            </select>
+          </div>
+          <div className="prefrow"><span className="ico">🎓</span>
+            <select value={prefs.year} onChange={e => setPrefs(p => ({...p, year:e.target.value}))}>
+              {(college ? college.years : []).map(y => <option key={y}>{y}</option>)}
+            </select>
+          </div>
+          {college && <div className="stat">{college.subjects.length} subjects · {college.units} units indexed</div>}
+        </div>
+      </aside>
+
+      <div className="main">
+        <div className="topbar">
+          <button className="iconbtn" onClick={() => setSideOpen(o => !o)}>☰</button>
+          <div className="crumb">
+            {active ? active.title : 'New chat'}
+            <small>{prefs.college}{prefs.year ? ' · ' + prefs.year : ''} — just type, Wildflow finds the unit</small>
+          </div>
+          <div className="live"><div className="dot"/>notes connected</div>
+        </div>
+
+        <div className="scroll" ref={scrollRef}>
+          {(!active || active.messages.length === 0)
+            ? <Welcome onAsk={q => send(q)}/>
+            : <div className="chatcol">{active.messages.map(m =>
+                <Message key={m.id} m={m} onCopy={copyText} onFeedback={sendFeedback} onFormulas={openFormulas}/>)}</div>}
+        </div>
+
+        <div className="composerwrap">
+          <div className={`composer ${focus ? 'glow' : ''}`}>
+            <textarea ref={taRef} rows="1" value={input} placeholder="Ask anything from your syllabus…"
+              onChange={e => {setInput(e.target.value); autosize(e);}}
+              onFocus={() => setFocus(true)} onBlur={() => setFocus(false)}
+              onKeyDown={e => { if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); send(); } }}/>
+            <button className="quizbtn" disabled={busy} title="Quiz me (uses the text above as topic, or the current unit)"
+              onClick={quiz}>🎯</button>
+            <button className="send" disabled={busy || !input.trim()} onClick={() => send()}>➤</button>
+          </div>
+          <div className="hintline">Answers come <b>only from your official unit notes</b> — anything beyond them is clearly marked.</div>
+        </div>
+      </div>
+
+      {modal && <FormulaModal data={modal} onClose={() => setModal(null)}/>}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

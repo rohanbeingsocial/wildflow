@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wildflow — syllabus-true study AI</title>
+<meta name="description" content="A multimodal RAG study app that answers only from your college's official unit notes.">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0a0b12; --panel: #12141f; --border: rgba(255,255,255,.08);
+    --text: #e8e9f0; --dim: #8b8fa3; --v: #8b5cf6; --p: #ec4899;
+  }
+  body {
+    background: var(--bg); color: var(--text);
+    font: 16px/1.65 "Segoe UI", system-ui, -apple-system, sans-serif;
+    min-height: 100vh; overflow-x: hidden;
+  }
+  .aurora {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(60% 50% at 15% 0%, rgba(139,92,246,.18), transparent 60%),
+      radial-gradient(50% 40% at 85% 10%, rgba(236,72,153,.12), transparent 60%),
+      radial-gradient(40% 40% at 50% 100%, rgba(59,130,246,.10), transparent 60%);
+  }
+  main { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 56px 24px 80px; }
+  .logo { display: flex; align-items: center; gap: 12px; justify-content: center; margin-bottom: 28px; }
+  .logo .ic {
+    width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; font-size: 22px;
+    background: linear-gradient(135deg, #a78bfa, #f0abfc);
+  }
+  .logo b { font-size: 22px; letter-spacing: .5px; }
+  .logo small { display: block; color: var(--dim); font-size: 12px; font-weight: 400; }
+  h1 {
+    text-align: center; font-size: clamp(34px, 6vw, 58px); line-height: 1.12; font-weight: 800;
+    background: linear-gradient(90deg, #a78bfa, #f0abfc, #f9a8d4);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    margin-bottom: 18px;
+  }
+  .sub { text-align: center; color: var(--dim); max-width: 640px; margin: 0 auto 36px; font-size: 17px; }
+  .sub b { color: var(--text); }
+  .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 48px; }
+  .btn {
+    display: inline-block; padding: 11px 22px; border-radius: 12px; text-decoration: none;
+    font-weight: 600; font-size: 15px; border: 1px solid var(--border); color: var(--text);
+    background: var(--panel); transition: transform .15s, box-shadow .15s;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn.primary {
+    background: linear-gradient(90deg, var(--v), var(--p)); border: none; color: #fff;
+    box-shadow: 0 6px 24px rgba(139,92,246,.35);
+  }
+  .frame {
+    border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0,0,0,.55), 0 0 0 1px rgba(139,92,246,.15);
+    margin-bottom: 14px; background: #000;
+  }
+  video { display: block; width: 100%; height: auto; }
+  .cap { text-align: center; color: var(--dim); font-size: 13px; margin-bottom: 56px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 56px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px;
+  }
+  .card .e { font-size: 22px; margin-bottom: 8px; }
+  .card b { display: block; margin-bottom: 6px; font-size: 15px; }
+  .card p { color: var(--dim); font-size: 14px; }
+  .note {
+    background: rgba(139,92,246,.08); border: 1px solid rgba(139,92,246,.25); border-radius: 14px;
+    padding: 18px 22px; color: var(--dim); font-size: 14.5px; margin-bottom: 48px;
+  }
+  .note b { color: var(--text); }
+  footer { text-align: center; color: var(--dim); font-size: 13.5px; }
+  footer a { color: #a78bfa; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="aurora"></div>
+<main>
+  <div class="logo">
+    <span class="ic">🌸</span>
+    <span><b>Wildflow</b><small>syllabus-true study AI</small></span>
+  </div>
+
+  <h1>Ask your syllabus<br>anything.</h1>
+  <p class="sub">No menus, no searching through PDFs. Type a question — Wildflow detects the subject,
+  finds the exact unit in your <b>official college notes</b>, and answers with the real formulas
+  and diagrams. Anything beyond your notes is clearly marked.</p>
+
+  <div class="cta">
+    <a class="btn primary" href="https://github.com/rohanbeingsocial/wildflow">View on GitHub</a>
+    <a class="btn" href="wildflow-preprint.pdf">Read the preprint (PDF)</a>
+  </div>
+
+  <div class="frame">
+    <video src="demo.mp4" autoplay muted loop playsinline controls></video>
+  </div>
+  <p class="cap">25-second demo: a numerical question auto-routed to the right unit, solved with the unit's own
+  formula, arithmetic re-verified with sympy, sources shown verbatim, per-unit formula sheet.</p>
+
+  <div class="grid">
+    <div class="card"><div class="e">🧭</div><b>Auto-routing</b>
+      <p>Subject, topic and query type detected from the question alone. Students pick only college + year, once.</p></div>
+    <div class="card"><div class="e">📖</div><b>Verbatim sources</b>
+      <p>Answers come from isolated per-unit vector stores; matched sections are re-read from the authoritative Markdown, equations intact.</p></div>
+    <div class="card"><div class="e">✓</div><b>Verified arithmetic</b>
+      <p>Numerical answers are re-computed with sympy and chip-marked as verified — or flagged when they don't match.</p></div>
+    <div class="card"><div class="e">📐</div><b>Formula sheets &amp; quizzes</b>
+      <p>Every display equation in a unit on one sheet; five-question practice quizzes generated from the unit's own content.</p></div>
+    <div class="card"><div class="e">⚡</div><b>Semantic cache</b>
+      <p>Repeat questions (cosine ≥ 0.95 within a unit) answer instantly from cache.</p></div>
+    <div class="card"><div class="e">🛡️</div><b>Hallucination control</b>
+      <p>The LLM is restricted to classification, bounded generation and verification — never open-ended recall.</p></div>
+  </div>
+
+  <div class="note">
+    <b>Why is this a demo and not the live app?</b> GitHub Pages hosts static files only.
+    Wildflow needs a Python backend, ~2.5&nbsp;GB of embedding models (e5-large + CLIP), per-unit Qdrant
+    vector stores and a server-side Gemini key — it runs on any machine with Python and ~6&nbsp;GB free RAM.
+    Setup instructions are in the <a href="https://github.com/rohanbeingsocial/wildflow" style="color:#a78bfa">repository README</a>.
+  </div>
+
+  <footer>
+    <a href="wildflow-preprint.pdf">Wildflow: A Multimodal Retrieval-Augmented Academic Intelligence System</a>
+    — Rohan Deogaonkar, MIT World Peace University, 2026
+  </footer>
+</main>
+</body>
+</html>

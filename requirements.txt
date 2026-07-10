@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+qdrant-client
+sentence-transformers
+transformers
+torch
+accelerate
+google-generativeai>=0.3.2
+sympy
+numpy

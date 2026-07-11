@@ -20,9 +20,9 @@ For exam prep that's poison: you need *your professor's* derivation, *your unit'
 
 ## How this came to be
 
-Wildflow was built during the author's **first year of engineering** at MIT World Peace University, from January to April 2025 — a first attempt at architecting an end-to-end system: structured data pipelines, vector databases, multi-model orchestration, and cost-aware scalability planning. The project was paused in April 2025 for academic commitments; the design decisions and trade-offs made along the way were documented publicly on [Medium](https://medium.com/@rohandeogaonkar.9). The research prototype (a pile of ~15 scripts) was later consolidated into the two-file product in this repo, and the architecture was written up as the preprint.
+I built Wildflow during my **first year of engineering** at MIT World Peace University, from January to April 2025 — my first attempt at architecting an end-to-end system: structured data pipelines, vector databases, multi-model orchestration, and cost-aware scalability planning. I paused the project in April 2025 for academic commitments; the design decisions and trade-offs I made along the way are documented publicly on my [Medium](https://medium.com/@rohandeogaonkar.9). I later consolidated the research prototype (a pile of ~15 scripts) into the two-file product in this repo, and wrote the architecture up as the preprint.
 
-Several ambitions were deliberately deferred (GPU capital and API-cost constraints during early scaling): per-subject fine-tuned small language models, a fully local model stack, voice-driven study modes, auto-generated study guides, and a semantically linked resource library of past papers. The architecture is modular precisely so these can bolt on without a redesign.
+Several ambitions I deliberately deferred (GPU capital and API-cost constraints during early scaling): per-subject fine-tuned small language models, a fully local model stack, voice-driven study modes, auto-generated study guides, and a semantically linked resource library of past papers. The architecture is modular precisely so these can bolt on without a redesign.
 
 ## Design principles
 

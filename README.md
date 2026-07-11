@@ -81,10 +81,6 @@ First question after startup loads the embedding models (~4–6 GB free RAM need
 
 Gemini models are addressed by **rolling aliases** (`gemini-flash-latest`, `gemini-pro-latest`) with per-model quota-fallback chains, so the app doesn't break when Google retires a version or a free-tier bucket empties.
 
-## Can this run on GitHub Pages?
-
-No — Pages hosts static files only, and Wildflow needs a Python backend, ~2.5 GB of embedding models, per-unit vector stores, and a server-side Gemini key. The [Pages site](https://rohanbeingsocial.github.io/wildflow/) hosts the demo; to actually run Wildflow you need any box with Python and ~6 GB of free RAM (a small VPS works).
-
 ## Citation
 
 ```bibtex

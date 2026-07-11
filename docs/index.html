@@ -50,13 +50,6 @@
     background: linear-gradient(90deg, var(--v), var(--p)); border: none; color: #fff;
     box-shadow: 0 6px 24px rgba(139,92,246,.35);
   }
-  .frame {
-    border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
-    box-shadow: 0 24px 80px rgba(0,0,0,.55), 0 0 0 1px rgba(139,92,246,.15);
-    margin-bottom: 14px; background: #000;
-  }
-  video { display: block; width: 100%; height: auto; }
-  .cap { text-align: center; color: var(--dim); font-size: 13px; margin-bottom: 56px; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 56px; }
   .card {
     background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px;
@@ -64,11 +57,6 @@
   .card .e { font-size: 22px; margin-bottom: 8px; }
   .card b { display: block; margin-bottom: 6px; font-size: 15px; }
   .card p { color: var(--dim); font-size: 14px; }
-  .note {
-    background: rgba(139,92,246,.08); border: 1px solid rgba(139,92,246,.25); border-radius: 14px;
-    padding: 18px 22px; color: var(--dim); font-size: 14.5px; margin-bottom: 48px;
-  }
-  .note b { color: var(--text); }
   footer { text-align: center; color: var(--dim); font-size: 13.5px; }
   footer a { color: #a78bfa; text-decoration: none; }
 </style>
@@ -91,12 +79,6 @@
     <a class="btn" href="wildflow-preprint.pdf">Read the preprint (PDF)</a>
   </div>
 
-  <div class="frame">
-    <video src="demo.mp4" autoplay muted loop playsinline controls></video>
-  </div>
-  <p class="cap">25-second demo: a numerical question auto-routed to the right unit, solved with the unit's own
-  formula, arithmetic re-verified with sympy, sources shown verbatim, per-unit formula sheet.</p>
-
   <div class="grid">
     <div class="card"><div class="e">🧭</div><b>Auto-routing</b>
       <p>Subject, topic and query type detected from the question alone. Students pick only college + year, once.</p></div>
@@ -110,13 +92,6 @@
       <p>Repeat questions (cosine ≥ 0.95 within a unit) answer instantly from cache.</p></div>
     <div class="card"><div class="e">🛡️</div><b>Hallucination control</b>
       <p>The LLM is restricted to classification, bounded generation and verification — never open-ended recall.</p></div>
-  </div>
-
-  <div class="note">
-    <b>Why is this a demo and not the live app?</b> GitHub Pages hosts static files only.
-    Wildflow needs a Python backend, ~2.5&nbsp;GB of embedding models (e5-large + CLIP), per-unit Qdrant
-    vector stores and a server-side Gemini key — it runs on any machine with Python and ~6&nbsp;GB free RAM.
-    Setup instructions are in the <a href="https://github.com/rohanbeingsocial/wildflow" style="color:#a78bfa">repository README</a>.
   </div>
 
   <footer>

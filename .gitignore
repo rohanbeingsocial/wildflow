@@ -5,3 +5,5 @@ feedback.jsonl
 generated/
 qdrant_db/
 *.lock
+server.log
+server.err.log

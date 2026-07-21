@@ -1,4 +1,4 @@
-# 🌸 Wildflow
+#  Wildflow
 **Ask your syllabus anything.** Wildflow is a multimodal RAG study app that answers *only* from your college's official unit notes — the exact formulas, the exact diagrams, nothing hallucinated from the model's pretraining.
 
 Built around the architecture described in the preprint **[Wildflow: A Multimodal Retrieval-Augmented Academic Intelligence System](docs/wildflow-preprint.pdf)** (Rohan Deogaonkar, MIT World Peace University, 2026).
